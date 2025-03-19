@@ -10,11 +10,15 @@ const db = new Client({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  connectionTimeoutMillis: 5000, // Timeout after 5 seconds
 });
 
 db.connect()
   .then(() => console.log("🚀 Connected to PostgreSQL"))
-  .catch(err => console.error("❌ Database connection error", err));
+  .catch(err => {
+    console.error("❌ Database connection error", err);
+    process.exit(1); // Exit process if database fails
+  });
 
 const server = http.createServer(async (req, res) => {
   if (req.url === "/db") {
@@ -23,6 +27,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { "Content-Type": "text/plain" });
       res.end(`Database time: ${result.rows[0].now}`);
     } catch (error) {
+      console.error("❌ Query error", error);
       res.writeHead(500, { "Content-Type": "text/plain" });
       res.end("Database error");
     }
@@ -35,3 +40,4 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}/`);
 });
+
