@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker App - Add User</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        input, button { padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+
+    <h2>Add a New User</h2>
+
+    <form id="userForm">
+        <input type="text" id="name" placeholder="Enter name" required>
+        <input type="email" id="email" placeholder="Enter email" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+        document.getElementById("userForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const responseMessage = document.getElementById("responseMessage");
+
+            try {
+                const response = await fetch("http://localhost:3000/db", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email })
+                });
+
+                const data = await response.json();
+                
+                if (response.status === 201) {
+                    responseMessage.style.color = "green";
+                    responseMessage.textContent = "User added successfully!";
+                } else {
+                    responseMessage.style.color = "red";
+                    responseMessage.textContent = data.error || "Error adding user.";
+                }
+            } catch (error) {
+                responseMessage.style.color = "red";
+                responseMessage.textContent = "Failed to connect to the server.";
+            }
+        });
+    </script>
+
+</body>
+</html>
