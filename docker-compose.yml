@@ -4,7 +4,7 @@ services:
   app:
     build: .
     ports:
-      - "${PORT}:${PORT}"
+      - "${PORT:-3000}:3000"  # Fixed port mapping issue
     volumes:
       - .:/app
     environment:
@@ -20,7 +20,8 @@ services:
     command: ["node", "index.js"]
     env_file:
       - .env
-
+    networks:
+      - app_network  # Ensure it's on the same network as DB
   db:
     image: postgres:latest
     restart: always
@@ -32,6 +33,10 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+    networks:
+      - app_network  # Ensure it’s accessible to the app
 volumes:
   postgres_data:
+
+networks:
+  app_network: # Explicitly define the network

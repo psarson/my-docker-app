@@ -1,12 +1,14 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require('express'); 
+const bodyParser = require('body-parser'); 
+const cors = require('cors'); 
 const pgp = require('pg-promise')();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON
-app.use(bodyParser.json());
+// Middleware
+app.use(cors());  // Enable CORS (MUST be before routes)
+app.use(bodyParser.json()); // Parse JSON body
 
 // Database Connection
 const db = pgp({
@@ -37,10 +39,19 @@ app.post('/db', async (req, res) => {
   }
 
   try {
+    // Check if the email already exists
+    const existingUser = await db.oneOrNone('SELECT * FROM users WHERE email = $1', [email]);
+
+    if (existingUser) {
+      return res.status(409).json({ error: 'Email already exists' });
+    }
+
+    // Insert new user if email is unique
     const newUser = await db.one(
       'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
       [name, email]
     );
+
     res.status(201).json(newUser);
   } catch (error) {
     console.error('❌ Database insert error:', error);
