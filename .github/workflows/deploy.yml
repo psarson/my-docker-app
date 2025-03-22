@@ -40,9 +40,6 @@ jobs:
     - name: Run Tests
       run: npm test
 
-    - name: Build Docker Image
-      run: docker build -t my-docker-app .
-    
     - name: Check RAILWAY_TOKEN Availability
       run: |
         if [ -z "${{ secrets.RAILWAY_TOKEN }}" ]; then
@@ -52,16 +49,20 @@ jobs:
           echo "✅ RAILWAY_TOKEN is successfully detected."
         fi
 
+    - name: Build Docker Image
+      run: docker build -t my-docker-app .
+
     - name: Push Docker Image to Railway (Deploy)
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        NODE_ENV: ${{ secrets.NODE_ENV }}
-        PORT: ${{ secrets.PORT }}
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_PORT: ${{ secrets.DB_PORT }}
-        DB_USER: ${{ secrets.DB_USER }}
+        NODE_ENV: ${{ vars.NODE_ENV }}
+        PORT: ${{ vars.PORT }}
+        DB_HOST: ${{ vars.DB_HOST }}
+        DB_PORT: ${{ vars.DB_PORT }}
+        DB_USER: ${{ vars.DB_USER }}
+        DB_NAME: ${{ vars.DB_NAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_NAME: ${{ secrets.DB_NAME }}
       run: |
         docker tag my-docker-app registry.railway.app/my-docker-app:latest
         docker push registry.railway.app/my-docker-app:latest
+
