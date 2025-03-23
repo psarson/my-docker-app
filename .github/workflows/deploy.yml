@@ -48,6 +48,16 @@ jobs:
         else
           echo "✅ RAILWAY_TOKEN is successfully detected."
         fi
+    - name: Debug Environment Variables
+      run: |
+        echo "DB_HOST is: $DB_HOST"
+        echo "RAILWAY_TOKEN is: $RAILWAY_TOKEN"
+        echo "NODE_ENV is: $NODE_ENV"
+        echo "PORT is: $PORT"
+        echo "DB_PORT is: $DB_PORT"
+        echo "DB_USER is: $DB_USER"
+        echo "DB_NAME is: $DB_NAME"
+        echo "DB_PASSWORD is: $DB_PASSWORD"
 
     - name: Build Docker Image
       run: docker build -t my-docker-app .
